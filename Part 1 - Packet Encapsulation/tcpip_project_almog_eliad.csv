@@ -1,0 +1,11 @@
+msg_id,app_protocol,src_app,dst_app,src_port,dst_port,message,timestamp
+1,HTTP,client_browser,web_server,51874,80,GET /index.html HTTP/1.1,0.010
+2,HTTP,web_server,client_browser,80,51874,HTTP/1.1 200 OK,0.025
+3,HTTP,client_browser,web_server,51874,80,GET /style.css HTTP/1.1,0.040
+4,HTTP,client_browser,web_server,51874,80,GET /script.js HTTP/1.1,0.055
+5,HTTP,web_server,client_browser,80,51874,HTTP/1.1 200 OK (CSS file),0.070
+6,HTTP,web_server,client_browser,80,51874,HTTP/1.1 200 OK (JS file),0.085
+7,HTTP,client_browser,web_server,51874,80,POST /login HTTP/1.1,0.120
+8,HTTP,web_server,client_browser,80,51874,HTTP/1.1 302 Found (Redirect),0.150
+9,HTTP,client_browser,web_server,51874,80,GET /dashboard HTTP/1.1,0.180
+10,HTTP,web_server,client_browser,80,51874,HTTP/1.1 200 OK (Dashboard),0.210
