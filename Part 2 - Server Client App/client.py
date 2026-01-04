@@ -1,9 +1,11 @@
 import socket
 import threading
 
-HOST = "YOUR_IP_ADDRESS"
+# set host ip and port to your desired values
+HOST = "localhost"
 PORT = 10000
 
+# client waits for messages
 def listen_for_messages(client_socket):
     while True:
         try:
@@ -11,7 +13,12 @@ def listen_for_messages(client_socket):
             if not msg:
                 break
 
-            print(f"\r{msg}\nYou: ")
+            if msg == "CANT_MESSAGE_SELF":
+                print("[ERROR] You cannot send messages to yourself!")
+            elif msg == "WRONG_USAGE":
+                print(f"[SYSTEM] Usage: @name <message>")
+            else:
+                print(f"\r{msg}\n ", end="") # prints the incoming messages to the client
         except:
             print("\n[DISCONNECTED] Lost connection to server.")
             break
@@ -22,18 +29,31 @@ def start_client():
     try:
         client.connect((HOST, PORT))
 
-        name = input("Enter your one-word username: ").strip()
-        client.sendall(name.encode("utf-8"))
+        # input name until it is a valid name
+        while True:
+            name = input("Enter your one-word username: ").strip()
+            client.sendall(name.encode("utf-8"))
 
+            response = client.recv(1024).decode("utf-8")
+
+            if response == "INVALID_NAME":
+                print("[ERROR] Username is invalid. Make sure it is a single word and not empty.")
+            elif response == "NAME_TAKEN":
+                print("[ERROR] Username is already taken. Retry with another name.")
+            elif response == "WELCOME":
+                print(f"[SYSTEM] WELCOME {name}. To chat, type: @target <message>")
+                break
+
+        # thread active only if the name is valid, meaning client registered successfully
         threading.Thread(target=listen_for_messages, args=(client,)).start()
 
-        print(f"--- Hello {name}! Type @name message to chat with others ---")
         while True:
-            msg = input("You: ")
+            msg = input()
+            if not msg:
+                continue
             if msg.lower() == 'exit':
                 break
-            if msg:
-                client.sendall(msg.encode("utf-8"))
+            client.sendall(msg.encode("utf-8"))
 
     except Exception as e:
         print(f"[ERROR] {e}")
