@@ -1,9 +1,9 @@
 import socket
 import threading
 
-# set host ip and port to your desired values
-HOST = "localhost"
-PORT = 10000
+# set host ip and port to the internal IP address of the computer running the server
+SERVER_IP = "localhost"
+PORT = 12000
 
 # client waits for other client's messages and server responses
 def listen_for_messages(client_socket):
@@ -19,15 +19,14 @@ def listen_for_messages(client_socket):
                 print(f"[SYSTEM] Usage: @name <message>")
             else:
                 print(f"\r{msg}\n ", end="") # prints the incoming messages to the client
-        except ConnectionResetError:
-            print("\n[SYSTEM] Lost connection to server.")
+        except (ConnectionResetError, KeyboardInterrupt, ConnectionAbortedError):
             break
 
 def start_client():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        client.connect((HOST, PORT))
-        print(f"[SYSTEM] Connected to {HOST}:{PORT}")
+        client.connect((SERVER_IP, PORT))
+        print(f"[SYSTEM] Connected to {SERVER_IP}:{PORT}")
 
         # input name until it is a valid name
         while True:
@@ -57,8 +56,8 @@ def start_client():
                 break
             client.sendall(msg.encode("utf-8"))
 
-    except Exception as e:
-        print(f"[ERROR] {e}")
+    except (ConnectionResetError, KeyboardInterrupt, ConnectionAbortedError):
+        print("\n[SYSTEM] Lost connection to server.")
     finally:
         client.close()
 

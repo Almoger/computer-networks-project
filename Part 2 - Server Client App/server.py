@@ -1,9 +1,9 @@
 import socket
 import threading
 
-# set host ip and port to your desired values
+# set host ip and port to the internal IP address of the computer running the server
 SERVER_IP = "localhost"
-PORT = 10000
+PORT = 12000
 
 active_clients = {}
 clients_lock = threading.Lock()
@@ -26,8 +26,8 @@ def handle_client_input(client_socket, addr):
                     active_clients[username] = {"socket": client_socket, "address": formatted_addr}
                     break # break the loop since name is finally valid
 
-        except Exception as e:
-            print(f"[ERROR] Handshake failed: {e}")
+        except (ConnectionResetError, ConnectionAbortedError):
+            print(f"[SERVER] Unexpected disconnect from client {formatted_addr} (username: '{username}').")
             client_socket.close()
             return
 
@@ -64,7 +64,7 @@ def handle_client_input(client_socket, addr):
             else:
                 client_socket.sendall("WRONG_USAGE".encode("utf-8"))
 
-    except ConnectionResetError:
+    except (ConnectionResetError, ConnectionAbortedError):
         print(f"[SERVER] Unexpected disconnect from client {formatted_addr} (username: '{username}').")
 
     finally:
@@ -83,7 +83,6 @@ def start_server():
         server_socket.listen()
 
         print(f"[SERVER] Server ONLINE. Listening on {SERVER_IP}:{PORT}...")
-        print("[SERVER] Press Ctrl+C to shut down.")
 
         while True:
             client_sock, client_addr = server_socket.accept() # whenever a new client connects, it accepts the connection
