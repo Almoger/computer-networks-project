@@ -21,7 +21,7 @@ The project is structured into two main parts:
 | `project_report.docx` | 📄 Comprehensive final report covering methodology, encapsulation analysis, and app architecture |
 | **Part 1 - TCP/IP Data Encapsulation & Traffic Analysis** ||
 | `group03_http_input.csv` | 📄 CSV with 20 application layer messages (HTTP) |
-| `tcp_ip_encapsulation.ipynb` | 📓 Jupyter notebook for packet encapsulation |
+| `tcp_ip_encapsulation-annotated-v1.ipynb` | 📓 Jupyter notebook for packet encapsulation |
 | `packets.pcap` | 📡 Wireshark network capture file containing the analyzed traffic |
 | **Part 2 - Chat Application** ||
 | `server.py` | 🖥️ Multithreaded TCP server managing client routing via sockets |
