@@ -5,7 +5,7 @@ import threading
 HOST = "localhost"
 PORT = 10000
 
-# client waits for messages
+# client waits for other client's messages and server responses
 def listen_for_messages(client_socket):
     while True:
         try:
@@ -19,15 +19,15 @@ def listen_for_messages(client_socket):
                 print(f"[SYSTEM] Usage: @name <message>")
             else:
                 print(f"\r{msg}\n ", end="") # prints the incoming messages to the client
-        except:
-            print("\n[DISCONNECTED] Lost connection to server.")
+        except ConnectionResetError:
+            print("\n[SYSTEM] Lost connection to server.")
             break
-
 
 def start_client():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         client.connect((HOST, PORT))
+        print(f"[SYSTEM] Connected to {HOST}:{PORT}")
 
         # input name until it is a valid name
         while True:
@@ -52,6 +52,8 @@ def start_client():
             if not msg:
                 continue
             if msg.lower() == 'exit':
+                client.sendall("EXIT".encode("utf-8"))
+                print("\n[SYSTEM] Disconnected from server.")
                 break
             client.sendall(msg.encode("utf-8"))
 
