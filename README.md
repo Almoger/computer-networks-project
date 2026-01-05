@@ -11,7 +11,7 @@ The project is structured into two main parts:
 
 - TCP/IP Data Encapsulation & Traffic Analysis: Simulating the process of data packaging across network layers and performing packet capture analysis using Wireshark.
 
-- Socket-Based Multi-Client Chat System: Developing a real-time communication application using TCP sockets, featuring bidirectional messaging along with a full network traffic analysis.
+- Multi-Client Chat App: Developing a real-time communication application using TCP sockets, featuring bidirectional messaging along with a full network traffic analysis.
 
 ## 📂 Part 1:  TCP/IP Data Encapsulation & Traffic Analysis
 
