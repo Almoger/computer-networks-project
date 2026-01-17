@@ -26,6 +26,7 @@ The project is structured into two main parts:
 | **Part 2 - Chat Application** ||
 | `server.py` | 🖥️ Multithreaded TCP server managing client routing via sockets |
 | `client.py` | 💬 TCP client interface for real-time messaging |
+| `server-client-messages.pcap` | 📡 Wireshark network capture file containing the application's analyzed traffic |
 
 ## 📂 Part 1: TCP/IP Data Encapsulation & Traffic Analysis
 
