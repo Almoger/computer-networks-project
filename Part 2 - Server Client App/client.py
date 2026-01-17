@@ -1,11 +1,11 @@
 import socket
 import threading
 
-# set host ip and port to the internal IP address of the computer running the server
+##---- Make sure you set SERVER_IP & SERVER_PORT to the same values defined in server.py ----##
 SERVER_IP = "localhost"
-PORT = 12000
+SERVER_PORT = 12000
 
-# client waits for other client's messages and server responses
+# client waits for server responses and for other clients' messages (given to him by the server)
 def listen_for_messages(client_socket):
     while True:
         try:
@@ -25,8 +25,8 @@ def listen_for_messages(client_socket):
 def start_client():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        client.connect((SERVER_IP, PORT))
-        print(f"[SYSTEM] Connected to {SERVER_IP}:{PORT}")
+        client.connect((SERVER_IP, SERVER_PORT))
+        print(f"[SYSTEM] Connected to {SERVER_IP}:{SERVER_PORT}")
 
         # input name until it is a valid name
         while True:
@@ -43,9 +43,11 @@ def start_client():
                 print(f"[SYSTEM] WELCOME {name}. To chat, type: @target <message>")
                 break
 
-        # thread active only if the name is valid, meaning client registered successfully
+        # start a background thread to listen for incoming messages from the server.
+        # it prevents the program from getting stuck at client input (o/w the client won't receive data)
         threading.Thread(target=listen_for_messages, args=(client,)).start()
 
+        # main thread for input
         while True:
             msg = input()
             if not msg:
