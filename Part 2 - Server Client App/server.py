@@ -1,11 +1,12 @@
 import socket
 import threading
 
-# set host ip and port to the internal IP address of the computer running the server
+##-------- Set SERVER_IP to the private IP address of the computer that will run the server --------##
+##-------- Set PORT to any available port that isnt in use by another service --------##
 SERVER_IP = "localhost"
-PORT = 12000
+SERVER_PORT = 12000
 
-active_clients = {}
+online_clients = {}
 clients_lock = threading.Lock()
 
 def handle_client_input(client_socket, addr):
@@ -20,11 +21,11 @@ def handle_client_input(client_socket, addr):
             with clients_lock:
                 if not username or (" " in username):
                     client_socket.sendall("INVALID_NAME".encode('utf-8'))
-                elif username in active_clients:
+                elif username in online_clients:
                     client_socket.sendall("NAME_TAKEN".encode('utf-8'))
                 else:
-                    active_clients[username] = {"socket": client_socket, "address": formatted_addr}
-                    break # break the loop since name is finally valid
+                    online_clients[username] = {"socket": client_socket, "address": formatted_addr}
+                    break # break the loop when name is finally valid
 
         except (ConnectionResetError, ConnectionAbortedError):
             print(f"[SERVER] Unexpected disconnect from client {formatted_addr} (username: '{username}').")
@@ -42,22 +43,24 @@ def handle_client_input(client_socket, addr):
                 break
 
             if data.startswith("@") and " " in data:
-                parts = data[1:].split(" ", 1) # cut by 1st space: first word is the name, second word is the msg
+                # 1st character of data is @, so skip it with data[1:]
+                # cut by 1st space so the 1st word = name, after 1st word - msg
+                parts = data[1:].split(" ", maxsplit=1)
                 target_name = parts[0]
                 message_content = parts[1]
 
                 if target_name == username:
-                    client_socket.sendall(f"CANT_MESSAGE_SELF".encode("utf-8")) # SYSTEM: Cannot send messages to yourself.
+                    client_socket.sendall(f"CANT_MESSAGE_SELF".encode("utf-8"))
                     continue
 
                 with clients_lock:
 
-                    if not target_name in active_clients:
-                        client_socket.sendall(f"SYSTEM: User '{target_name}' not found.".encode("utf-8"))
+                    if not target_name in online_clients:
+                        client_socket.sendall(f"[SYSTEM]: User '{target_name}' was not found.".encode("utf-8"))
                         continue
 
-                    target_socket = active_clients[target_name]["socket"]
-                    target_ip = active_clients[target_name]["address"]
+                    target_socket = online_clients[target_name]["socket"]
+                    target_ip = online_clients[target_name]["address"]
 
                     target_socket.sendall(f"Message from {username}: {message_content}".encode("utf-8"))
                     print(f"[LOG] {username} ({formatted_addr}) -> {target_name} ({target_ip}): {message_content}")
@@ -69,8 +72,8 @@ def handle_client_input(client_socket, addr):
 
     finally:
         with clients_lock:
-            if username in active_clients:
-                active_clients.pop(username, None)
+            if username in online_clients:
+                online_clients.pop(username, None)
 
         # print this whether the client disconnected willingly or not
         print(f"[SERVER] Client {formatted_addr} (username: '{username}') has disconnected from server.")
@@ -79,17 +82,24 @@ def handle_client_input(client_socket, addr):
 def start_server():
     try:
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_socket.bind((SERVER_IP, PORT))
+        server_socket.bind((SERVER_IP, SERVER_PORT))
         server_socket.listen()
 
-        print(f"[SERVER] Server ONLINE. Listening on {SERVER_IP}:{PORT}...")
+        print(f"[SERVER] Server ONLINE. Listening on {SERVER_IP}:{SERVER_PORT}...")
 
         while True:
-            client_sock, client_addr = server_socket.accept() # whenever a new client connects, it accepts the connection
+            # whenever a new client connects, accept his connection
+            client_sock, client_addr = server_socket.accept()
+
+            # create new client thread to allow the server to handle multiple clients at once.
+            # without the new thread, the server would be stuck with one user and wouldn't be able to accept new connections from others
             client_thread = threading.Thread(target=handle_client_input, args=(client_sock, client_addr))
             client_thread.start()
 
             print(f"[SERVER] Online users count: {threading.active_count() - 1}")
+
+    except socket.gaierror:
+        print(f"[SERVER] Hostname '{SERVER_IP}' is invalid. Restart program with different address/hostname.")
 
     except KeyboardInterrupt:
         print("\n[SERVER] Shutting down...")
