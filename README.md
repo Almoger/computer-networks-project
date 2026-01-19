@@ -18,7 +18,7 @@ The project is structured into two main parts:
 | File | Description |
 |------|-------------|
 | **General Files** ||
-| `project_report.docx` | 📄 Comprehensive final report covering methodology, encapsulation analysis, and app architecture |
+| `project_report.pdf` | 📄 Comprehensive final report covering methodology, traffic analysis, and app architecture |
 | **Part 1 - TCP/IP Data Encapsulation & Traffic Analysis** ||
 | `group03_http_input.csv` | 📄 CSV with 20 application layer messages (HTTP) |
 | `tcp_ip_encapsulation-annotated-v1.ipynb` | 📓 Jupyter notebook for packet encapsulation |
